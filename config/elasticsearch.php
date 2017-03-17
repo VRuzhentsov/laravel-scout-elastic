@@ -36,6 +36,9 @@ return [
         'multi_match' => [
             'fields' => '_all',
             'fuzziness' => 'auto'
+        ],
+        'match_all' => [
+            'boost' => 1
         ]
     ],
 
