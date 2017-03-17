@@ -141,17 +141,24 @@ class ElasticsearchEngine extends Engine
             'index' => $builder->model->searchableWithin(),
             'type' => $builder->model->searchableAs(),
             'body' => [
-                'query' => [
-                    'bool' => [
-                        'must' => [
-                            [
-                                $queryMethod => array_merge([
-                                    'query' => "{$builder->query}"
-                                ], $queryParams)
+                'query' =>
+                    $queryMethod == 'match_all' ?
+                        [
+                            'match_all' => [
+                                'boost' => 1
                             ]
-                        ]
-                    ]
-                ],
+                        ] :
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        $queryMethod => array_merge([
+                                            'query' => "{$builder->query}"
+                                        ], $queryParams)
+                                    ]
+                                ]
+                            ]
+                        ],
                 'sort' => [
                     '_score'
                 ],
