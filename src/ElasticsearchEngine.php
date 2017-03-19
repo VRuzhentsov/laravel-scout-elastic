@@ -272,4 +272,19 @@ class ElasticsearchEngine extends Engine
     {
         return $results['hits']['total'];
     }
+    
+    /**
+     * Get the results of the given query mapped onto models.
+     *
+     * @param  \Laravel\Scout\Builder  $builder
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function get(Builder $builder)
+    {
+        $results = $this->search($builder);
+        return [
+            'results' => Collection::make($this->map($results, $builder->model)),
+            'total' => $this->getTotalCount($results)
+        ];
+    }
 }
