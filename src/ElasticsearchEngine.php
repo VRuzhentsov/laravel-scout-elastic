@@ -2,10 +2,10 @@
 
 namespace ScoutEngines\Elasticsearch;
 
-use Laravel\Scout\Builder;
-use Laravel\Scout\Engines\Engine;
 use Elasticsearch\Client as Elastic;
 use Illuminate\Database\Eloquent\Collection;
+use Laravel\Scout\Builder;
+use Laravel\Scout\Engines\Engine;
 
 class ElasticsearchEngine extends Engine
 {
@@ -141,28 +141,29 @@ class ElasticsearchEngine extends Engine
             'index' => $builder->model->searchableWithin(),
             'type' => $builder->model->searchableAs(),
             'body' => [
-                'query' =>
-                    $queryMethod == 'match_all' ?
-                        [
-                            'match_all' => [
-                                'boost' => 1
-                            ]
-                        ] :
-                        [
-                            'bool' => [
-                                'must' => [
-                                    [
-                                        $queryMethod => array_merge([
-                                            'query' => "{$builder->query}"
-                                        ], $queryParams)
-                                    ]
-                                ]
-                            ]
-                        ],
+                'query' => [
+                    'bool' => [
+                        'must' =>
+                            $queryMethod == 'match_all' ?
+                                [
+                                    'match_all' => [
+                                        'boost' => 1,
+                        
+                                    ],
+                                ] :
+                                [
+                                    $queryMethod => array_merge([
+                                        'query' => "{$builder->query}"
+                                    ], $queryParams)
+                                ],
+                   
+                    ],
+                ],
                 'sort' => [
                     '_score'
                 ],
                 'track_scores' => true,
+
             ]
         ];
 
@@ -176,6 +177,10 @@ class ElasticsearchEngine extends Engine
 
         if (isset($options['numericFilters']) && count($options['numericFilters'])) {
             $params['body']['query']['bool']['filter'] = $options['numericFilters'];
+        }
+    
+        if (isset($queryParams['filter']) && count($queryParams['filter'])) {
+            $params['body']['query']['bool']['filter'] = $queryParams['filter'];
         }
 
         // Sorting

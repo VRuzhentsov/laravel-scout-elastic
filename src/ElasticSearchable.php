@@ -41,9 +41,4 @@ trait ElasticSearchable
 
         return new ScoutBuilder($model, $query);
     }
-    
-    public function toArray(){
-        return !config('elasticsearch.settings.eloquent_reload') ? $this['attributes'] : parent::toArray();
-    }
-
 }
